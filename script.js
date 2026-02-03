@@ -3,13 +3,26 @@ const menuToggle = document.querySelector(".menu-toggle");
 const navLinks = document.querySelector(".nav-links");
 
 menuToggle.addEventListener("click", () => {
-  navLinks.classList.toggle("show");
+  const isOpen = navLinks.classList.toggle("show");
+  menuToggle.setAttribute("aria-expanded", isOpen);
 });
 
 // Close menu when a link is clicked (mobile)
 navLinks.addEventListener("click", (event) => {
   if (event.target.tagName === "A") {
     navLinks.classList.remove("show");
+    menuToggle.setAttribute("aria-expanded", "false");
+  }
+});
+
+document.addEventListener("click", (event) => {
+  if (
+    navLinks.classList.contains("show") &&
+    !navLinks.contains(event.target) &&
+    !menuToggle.contains(event.target)
+  ) {
+    navLinks.classList.remove("show");
+    menuToggle.setAttribute("aria-expanded", "false");
   }
 });
 
@@ -30,6 +43,99 @@ revealElements.forEach((element) => {
   element.classList.add("reveal");
   revealObserver.observe(element);
 });
+
+// Hero mouse tracer effect
+const hero = document.querySelector(".hero");
+const heroTracer = document.querySelector(".hero-tracer");
+
+hero.addEventListener("mousemove", (event) => {
+  const rect = hero.getBoundingClientRect();
+  heroTracer.style.left = `${event.clientX - rect.left}px`;
+  heroTracer.style.top = `${event.clientY - rect.top}px`;
+});
+
+hero.addEventListener("mouseleave", () => {
+  heroTracer.style.opacity = "0";
+});
+
+// Project showcase data and controls
+const projectData = [
+  {
+    title: "No Man's Land",
+    description:
+      "A third-person survival game where you race against time, craft tools, and decode alien ruins to return home.",
+    tech: "C# (Unity)",
+  },
+  {
+    title: "Echoes of Auria",
+    description:
+      "A moody exploration adventure with puzzle relics, adaptive audio, and handcrafted environments.",
+    tech: "Unity • Narrative Design",
+  },
+  {
+    title: "Starforge Outpost",
+    description:
+      "A base-building prototype featuring modular crafting, drone logistics, and co-op mission loops.",
+    tech: "Unity • Systems Design",
+  },
+];
+
+const projectTitle = document.querySelector("#project-title");
+const projectDescription = document.querySelector("#project-description");
+const projectTech = document.querySelector("#project-tech");
+const projectItems = document.querySelectorAll(".project-item");
+const projectDots = document.querySelectorAll(".dot");
+const projectNavButtons = document.querySelectorAll(".project-nav");
+
+let activeProjectIndex = 0;
+
+const updateProjectHighlight = (index) => {
+  const data = projectData[index];
+  if (!data) {
+    return;
+  }
+
+  projectTitle.textContent = data.title;
+  projectDescription.textContent = data.description;
+  projectTech.textContent = data.tech;
+
+  projectItems.forEach((item) => {
+    item.classList.toggle(
+      "is-active",
+      Number(item.dataset.index) === index
+    );
+  });
+
+  projectDots.forEach((dot) => {
+    dot.classList.toggle("active", Number(dot.dataset.index) === index);
+  });
+
+  activeProjectIndex = index;
+};
+
+projectItems.forEach((item) => {
+  item.addEventListener("click", () => {
+    updateProjectHighlight(Number(item.dataset.index));
+  });
+});
+
+projectDots.forEach((dot) => {
+  dot.addEventListener("click", () => {
+    updateProjectHighlight(Number(dot.dataset.index));
+  });
+});
+
+projectNavButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    const direction = button.dataset.direction;
+    const delta = direction === "next" ? 1 : -1;
+    const nextIndex =
+      (activeProjectIndex + delta + projectData.length) % projectData.length;
+    updateProjectHighlight(nextIndex);
+  });
+});
+
+updateProjectHighlight(activeProjectIndex);
 
 // Animated skill bars
 const skillBars = document.querySelectorAll(".skill-bar");
